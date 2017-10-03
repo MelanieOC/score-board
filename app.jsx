@@ -1,4 +1,4 @@
-let PLAYERS = [
+const PLAYERS = [
   {
     name: "Jim Hoskins",
     score: 31,
@@ -15,35 +15,70 @@ let PLAYERS = [
     id: 3,
   },
 ];
+class Model {
+  constructor(players) {
+    this.players = players;
+    this.inputValue = null;
+  }
+  addPlayer(text) {
+    this.players.push({
+      name: text.value,
+      score: 0,
+      id: this.players.length + 1
+    })
+    text.value = '';
+    this.notify();
+  }
+  decrease(player) {
+    player.score--;
+    this.notify();
+  }
+  increase(player) {
+    player.score++;
+    this.notify();
+  }
+  totalPoints() {
+    return this.players.map(item => item.score).reduce((total, item) => total + item);
+  }
+  subscribe(render) {
+    this.render = render;
+  }
+  notify() {
+    this.render();
+  }
+}
 
-const Header = props => {
+const Header = ({ model }) => {
   return (
     <div>
       <header className='header'>
         <table className='stats'>
-          <tr><td>PLAYERS:</td><td>{props.players.length}</td></tr>
-          <tr><td>TOTAL POINTS:</td><td>{props.players.map(a => a.score).reduce((a, b) => a + b)}</td></tr>
+          <tbody>
+            <tr><td>PLAYERS:</td><td>{model.players.length}</td></tr>
+            <tr><td>TOTAL POINTS:</td><td>{model.totalPoints()}</td></tr>
+          </tbody>
         </table>
         <div className='stopwatch'>
           <h2>STOPWATCH</h2>
-          <h1 className='stopwatch-time'>0</h1>
+          <div className='stopwatch-time'>0</div>
           <button>start</button><button>reset</button>
         </div>
       </header>
     </div>
   );
 }
-const PlayerList = props => {
+const PlayerList = ({ model }) => {
   return (
     <div>
       {
-        props.players.map(a => {
-          return <div className='player'>
-            <div className='player-name'>{a.name}</div>
+        model.players.map(player => {
+          return <div className='player' key={player.id}>
+            <button className='remove-player'>x</button>
+            <div className='player-name'>{player.name}</div>
             <div className='player-score counter'>
-              <button className='counter-action decrement'>-</button>
-              <span className='counter-score'>{a.score}</span>
-              <button className='counter-action increment'>+</button>
+              <button className='counter-action decrement' onClick={() => model.decrease(player)} >-</button>
+              <span className='counter-score'>{player.score}</span>
+              <button className='counter-action increment' onClick={() => model.increase(player)} >+</button>
             </div>
           </div>
         })
@@ -51,11 +86,15 @@ const PlayerList = props => {
     </div>
   );
 }
-const PlayerForm = props => {
+const PlayerForm = ({ model }) => {
   return (
     <div className='add-player-form'>
-      <form>
-        <input type="text" placeholder='ENTER A NAME' />
+      <form onSubmit={e => {
+        e.preventDefault();
+        model.addPlayer(model.inputValue);
+      }}
+      >
+        <input type="text" placeholder='ENTER A NAME' onChange={e => (model.inputValue = e.target)} />
         <input type="submit" value='add player' />
       </form>
     </div>
@@ -63,14 +102,24 @@ const PlayerForm = props => {
 }
 //
 //
-const Application = ({ title, players }) => {
+const Application = ({ model }) => {
   return (
     <div className='scoreboard'>
-      <Header players={players} />
-      <PlayerList players={players} />
-      <PlayerForm />
+      <Header model={model} />
+      <PlayerList model={model} />
+      <PlayerForm model={model} />
     </div>
   );
 }
 
-ReactDOM.render(<Application title="Scoreboard" players={PLAYERS} />, document.getElementById('container'));
+
+let model = new Model(PLAYERS);
+let render = () => {
+  ReactDOM.render(
+    <Application model={model} />,
+    document.getElementById('container')
+  );
+};
+
+model.subscribe(render);
+render(); 

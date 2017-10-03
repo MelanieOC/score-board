@@ -67,20 +67,24 @@ const Header = ({ model }) => {
     </div>
   );
 }
+const Player = ({ player }) => {
+  return (
+    <div className='player' key={player.id}>
+      <div className='player-name'>{player.name}</div>
+      <div className='player-score counter'>
+        <button className='counter-action decrement' onClick={player.score ? () => model.decrease(player) : ''}>-</button>
+        <span className='counter-score'>{player.score}</span>
+        <button className='counter-action increment' onClick={() => model.increase(player)} >+</button>
+      </div>
+    </div>
+  );
+}
 const PlayerList = ({ model }) => {
   return (
     <div>
       {
         model.players.map(player => {
-          return <div className='player' key={player.id}>
-            <button className='remove-player'>x</button>
-            <div className='player-name'>{player.name}</div>
-            <div className='player-score counter'>
-              <button className='counter-action decrement' onClick={() => model.decrease(player)} >-</button>
-              <span className='counter-score'>{player.score}</span>
-              <button className='counter-action increment' onClick={() => model.increase(player)} >+</button>
-            </div>
-          </div>
+          return <Player player={player} />
         })
       }
     </div>

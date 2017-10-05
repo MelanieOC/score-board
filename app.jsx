@@ -47,7 +47,47 @@ class Model {
     this.render();
   }
 }
-
+class StopWatch extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      counter: 0,
+      button: 'start'
+    }
+  }
+  startTimer() {
+    this.timer = setInterval(() => {
+      this.setState((prevState)=>({
+        counter: prevState.counter + 1
+      }));
+    }, 1000);
+    this.setState({
+      button: 'stop'
+    })
+  }
+  resetTimer(){
+    this.setState({
+      counter: 0
+    });
+  }
+  stopTimer () {
+    clearInterval(this.timer);
+    this.setState({
+      button: 'start'
+    })
+  }
+    
+  render() {
+    return (
+      <div className='stopwatch'>
+        <h2>STOPWATCH</h2>
+        <div className='stopwatch-time'>{this.state.counter}</div>
+        <button onClick={this.state.button==='start'?()=>this.startTimer():()=>this.stopTimer()}>{this.state.button}</button>
+        <button onClick={()=>this.resetTimer()}>reset</button>
+      </div>
+    );
+  }
+}
 const Header = ({ model }) => {
   return (
     <div>
@@ -58,11 +98,7 @@ const Header = ({ model }) => {
             <tr><td>TOTAL POINTS:</td><td>{model.totalPoints()}</td></tr>
           </tbody>
         </table>
-        <div className='stopwatch'>
-          <h2>STOPWATCH</h2>
-          <div className='stopwatch-time'>0</div>
-          <button>start</button><button>reset</button>
-        </div>
+        <StopWatch />
       </header>
     </div>
   );

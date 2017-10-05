@@ -1,3 +1,5 @@
+'use strict';
+
 const PLAYERS = [
   {
     name: "Jim Hoskins",
